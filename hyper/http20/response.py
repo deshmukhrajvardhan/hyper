@@ -9,6 +9,7 @@ httplib/http.client.
 import logging
 import zlib
 import brotli
+import timeit
 
 from ..common.decoder import DeflateDecoder
 from ..common.headers import HTTPHeaderMap
@@ -113,6 +114,9 @@ class HTTP20Response(object):
             ``True``, the actual amount of data returned may be different to
             the amount requested.
         """
+        ## My changes                                                                                       
+	    chunk_start_time = timeit.default_timer()
+        ## \My changes
         if amt is not None and amt <= len(self._data_buffer):
             data = self._data_buffer[:amt]
             self._data_buffer = self._data_buffer[amt:]
@@ -126,11 +130,16 @@ class HTTP20Response(object):
         else:
             data = b''.join([self._data_buffer, self._stream._read()])
             response_complete = True
-
+	    ## My changes                                                                                       
+	    time_after_read = timeit.default_timer() - chunk_start_time
+        ## \My Changes
         # We may need to decode the body.
         if decode_content and self._decompressobj and data:
             data = self._decompressobj.decompress(data)
+        ## My Changes                                                                                       
+        time_after_decode = timeit.default_timer() - chunk_start_time
 
+        ## \My Changes       
         # If we're at the end of the request, we have some cleaning up to do.
         # Close the stream, and if necessary flush the buffer.
         if response_complete:
@@ -143,7 +152,13 @@ class HTTP20Response(object):
         # We're at the end, close the connection.
         if response_complete:
             self.close()
-
+            
+        ## My Changes                                                                                       
+        time_after_flush = timeit.default_timer() - chunk_start_time
+        with open("/mnt/QUIClientServer0/hyper-read-steps",'a') as hyper_read_steps:
+            hyper_read_steps.write("hyper-http2-read_chunk_start_time,{},{},{},{}".format(chunk_start_time,\
+time_after_read,time_after_decode,time_after_flush)+"\n")
+        ##\My Changes
         return data
 
     def read_chunked(self, decode_content=True):
