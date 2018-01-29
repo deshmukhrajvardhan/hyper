@@ -130,8 +130,8 @@ class HTTP20Response(object):
         else:
             data = b''.join([self._data_buffer, self._stream._read()])
             response_complete = True
-	    ## My changes                                                                                       
-	    time_after_read = timeit.default_timer() - chunk_start_time
+	## My changes                                                                                       
+	time_after_read = timeit.default_timer() - chunk_start_time
         ## \My Changes
         # We may need to decode the body.
         if decode_content and self._decompressobj and data:
