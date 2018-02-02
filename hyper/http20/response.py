@@ -16,7 +16,7 @@ from ..common.headers import HTTPHeaderMap
 from ..common.util import HTTPVersion
 
 log = logging.getLogger(__name__)
-
+stream_end = -1
 
 def strip_headers(headers):
     """
@@ -186,7 +186,7 @@ time_after_read,time_after_decode,time_after_flush)+"\n")
             yield self._decompressobj.flush()
 
         self.close()
-
+	yield stream_end
         return
 ## My Changes                                                                                       
 
@@ -227,7 +227,7 @@ time_after_read,time_after_decode,time_after_flush)+"\n")
 start_time,time_after_decode,time_after_flush))
 
         self.close()
-
+	yield stream_end
         return
 
 ## \My Changes                                                                                      
