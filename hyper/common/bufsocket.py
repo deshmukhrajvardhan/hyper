@@ -164,7 +164,7 @@ class BufferedSocket(object):
         if not self._remaining_capacity:
             self.new_buffer()
 
-        count = self._sck.recv_into(self._buffer_view[self._buffer_end:])
+        count = self._sck.recv_into(self._buffer_view[self._buffer_end:]) #using sockets recv_into
         if not count:
             print("In Fill, count:",count)
             raise ConnectionResetError()
