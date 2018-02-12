@@ -165,6 +165,7 @@ class BufferedSocket(object):
             self.new_buffer()
 
         count = self._sck.recv_into(self._buffer_view[self._buffer_end:]) #using sockets recv_into
+        #https://docs.python.org/2/library/socket.html
         if not count:
             print("In Fill, count:",count)
             raise ConnectionResetError()
