@@ -286,6 +286,7 @@ class HTTP11Connection(object):
             # 'encourage' the socket to receive data.
             self._sock.fill()
             response = self.parser.parse_response(self._sock.buffer)
+            print("buff_len:",len(self._sock.buffer),"buf:",self._sock.buffer.tobytes(),"Response:",response)
 
         for n, v in response.headers:
             headers[n.tobytes()] = v.tobytes()
