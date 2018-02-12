@@ -1,3 +1,7 @@
+# lower_level error due to buffer [fill](https://github.com/deshmukhrajvardhan/hyper/blob/de05c7671beac23ad69770d62a80337527ae8b02/hyper/common/bufsocket.py#L169)
+
+data read from socket into the buffer's count =0
+
 # Expected response seen by ASTREAMer after [printing root of error](https://github.com/deshmukhrajvardhan/hyper/blob/2f9209d22d5d4fe4c3d055a9d1dbe8f3dae4230f/hyper/http11/connection.py#L289)
 
 ``` 
