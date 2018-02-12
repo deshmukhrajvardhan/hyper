@@ -70,8 +70,16 @@ buff_len: 42 buf b'HTTP/1.1 200 OK\r\nAccept-Ranges: bytes\r\nCon' Response: Non
 # Inference from observed response:
 At the server side,the response start is created alright HTTP/1.1 200 OK. Maybe the later data isn't (but didn't find such an issue (problem) online). 
 ## Tried Apache:
+
+## When DOWNLOAD_CHUNK= 1600:
 after 99 segments give error:
 ```
 header close
 Unexpected error: (<class 'SystemExit'>, SystemExit(None,), <traceback object at 0x7f58094edbc8>)
+```
+## When DOWNLOAD_CHUNK= 1600:
+
+```
+http://10.10.4.2/www-itec.uni-klu.ac.at/ftp/datasets/DASHDataset2014/BigBuckBunny/2sec/bunny_45652bps/BigBuckBunny_2s72.m4s
+buff_len: 117 buf b'HTTP/1.1 200 OK\r\nDate: Mon, 12 Feb 2018 17:52:01 GMT\r\nServer: Apache/2.4.7 (Ubuntu)\r\nLast-Modified: Wed, 10 Sep 2014 ' Response: None
 ```
