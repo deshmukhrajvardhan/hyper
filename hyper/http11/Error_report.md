@@ -67,3 +67,5 @@ buff_len: 71 buf b'HTTP/1.1 200 OK\r\nAccept-Ranges: bytes\r\nContent-Length: 10
 http://10.10.4.2/www-itec.uni-klu.ac.at/ftp/datasets/DASHDataset2014/BigBuckBunny/2sec/bunny_45652bps/BigBuckBunny_2s72.m4s 
 buff_len: 42 buf b'HTTP/1.1 200 OK\r\nAccept-Ranges: bytes\r\nCon' Response: None 
 ```
+# Inference from observed response:
+At the server side,the response start is created alright HTTP/1.1 200 OK. Maybe the later data isn't (but didn't find such an issue (problem) online). 
