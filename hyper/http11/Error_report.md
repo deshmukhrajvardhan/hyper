@@ -69,3 +69,9 @@ buff_len: 42 buf b'HTTP/1.1 200 OK\r\nAccept-Ranges: bytes\r\nCon' Response: Non
 ```
 # Inference from observed response:
 At the server side,the response start is created alright HTTP/1.1 200 OK. Maybe the later data isn't (but didn't find such an issue (problem) online). 
+## Tried Apache:
+after 99 segments give error:
+```
+header close
+Unexpected error: (<class 'SystemExit'>, SystemExit(None,), <traceback object at 0x7f58094edbc8>)
+```
