@@ -115,7 +115,7 @@ class HTTP20Response(object):
             the amount requested.
         """
         ## My changes                                                                                       
-	chunk_start_time = timeit.default_timer()
+	#chunk_start_time = timeit.default_timer()
         ## \My changes
         if amt is not None and amt <= len(self._data_buffer):
             data = self._data_buffer[:amt]
@@ -131,13 +131,13 @@ class HTTP20Response(object):
             data = b''.join([self._data_buffer, self._stream._read()])
             response_complete = True
 	## My changes                                                                                       
-	time_after_read = timeit.default_timer() - chunk_start_time
+	#time_after_read = timeit.default_timer() - chunk_start_time
         ## \My Changes
         # We may need to decode the body.
         if decode_content and self._decompressobj and data:
             data = self._decompressobj.decompress(data)
         ## My Changes                                                                                       
-        time_after_decode = timeit.default_timer() - chunk_start_time
+        #time_after_decode = timeit.default_timer() - chunk_start_time
 
         ## \My Changes       
         # If we're at the end of the request, we have some cleaning up to do.
@@ -154,10 +154,10 @@ class HTTP20Response(object):
             self.close()
             
         ## My Changes                                                                                       
-        time_after_flush = timeit.default_timer() - chunk_start_time
-        with open("/mnt/QUIClientServer0/hyper-read-steps",'a') as hyper_read_steps:
-            hyper_read_steps.write("hyper-http2-read_chunk_start_time,{},{},{},{}".format(chunk_start_time,\
-time_after_read,time_after_decode,time_after_flush)+"\n")
+        #time_after_flush = timeit.default_timer() - chunk_start_time
+        #with open("/mnt/QUIClientServer0/hyper-read-steps",'a') as hyper_read_steps:
+            #hyper_read_steps.write("hyper-http2-read_chunk_start_time,{},{},{},{}".format(chunk_start_time,\
+#time_after_read,time_after_decode,time_after_flush)+"\n")
         ##\My Changes
         return data
 
@@ -185,8 +185,9 @@ time_after_read,time_after_decode,time_after_flush)+"\n")
         if decode_content and self._decompressobj:
             yield self._decompressobj.flush()
 
-        self.close()
-	yield stream_end
+        yield stream_end
+	self.close()
+	
         return
 ## My Changes                                                                                       
 
@@ -200,7 +201,7 @@ time_after_read,time_after_decode,time_after_flush)+"\n")
         .. warning:: This may yield the empty string, without that being the                        
                      end of the body!                                                               
         """
-        chunk_start_time = timeit.default_timer()
+        #chunk_start_time = timeit.default_timer()
 
         while True:
             data = self._stream._read(amt)
@@ -215,19 +216,14 @@ time_after_read,time_after_decode,time_after_flush)+"\n")
             #time_after_decode = timeit.default_timer() - chunk_start_time                          
             yield data
 
-        time_after_decode = timeit.default_timer() - chunk_start_time
+        #time_after_decode = timeit.default_timer() - chunk_start_time
 
         if decode_content and self._decompressobj:
             yield self._decompressobj.flush()
 
-        time_after_flush = timeit.default_timer() - chunk_start_time
-
-        with open("/mnt/QUIClientServer0/gen-hyper-read-steps",'a') as gen_hyper_read_steps:
-            gen_hyper_read_steps.write("hyper-http2-read_chunk_start_time,{},{},{}\n".format(chunk_\
-start_time,time_after_decode,time_after_flush))
-
-        self.close()
 	yield stream_end
+        self.close()
+	
         return
 
 ## \My Changes                                                                                      
