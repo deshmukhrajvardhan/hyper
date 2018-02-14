@@ -200,7 +200,7 @@ class HTTP11Response(object):
 
         return data
     
-def read_chunked_give_size(self, amt=None, decode_content=True):
+    def read_chunked_give_size(self, amt=None, decode_content=True):
         """
         Reads the response body, or up to the next ``amt`` bytes.
 
@@ -216,7 +216,7 @@ def read_chunked_give_size(self, amt=None, decode_content=True):
         if self._sock is None:
             return b''
 
-        while 
+        while end_of_request:
          if self._chunked:
              return self._normal_read_chunked(amt, decode_content)
 
