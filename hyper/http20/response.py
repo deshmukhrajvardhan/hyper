@@ -115,7 +115,7 @@ class HTTP20Response(object):
             the amount requested.
         """
         ## My changes                                                                                       
-	    chunk_start_time = timeit.default_timer()
+	chunk_start_time = timeit.default_timer()
         ## \My changes
         if amt is not None and amt <= len(self._data_buffer):
             data = self._data_buffer[:amt]
