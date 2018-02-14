@@ -214,85 +214,87 @@ class HTTP11Response(object):
         """
         # Return early if we've lost our connection.
         if self._sock is None:
-            return b''
+            yield b''
+        
+        end_of_request=False
+        while not end_of_request: 
+            if self._chunked:
+                yield self._normal_read_chunked(amt, decode_content)
 
-        while end_of_request:
-         if self._chunked:
-             return self._normal_read_chunked(amt, decode_content)
+            # If we're asked to do a read without a length, we need to read
+            # everything. That means either the entire content length, or until the
+            # socket is closed, depending.
+            if amt is None:
+                if self._length is not None:
+                    amt = self._length
+                elif self._expect_close:
+                    return self._read_expect_closed(decode_content)
+                else:  # pragma: no cover
+                    raise InvalidResponseError(
+                        "Response must either have length or Connection: close"
+                    )
 
-         # If we're asked to do a read without a length, we need to read
-         # everything. That means either the entire content length, or until the
-         # socket is closed, depending.
-         if amt is None:
-             if self._length is not None:
-                 amt = self._length
-             elif self._expect_close:
-                 return self._read_expect_closed(decode_content)
-             else:  # pragma: no cover
-                 raise InvalidResponseError(
-                     "Response must either have length or Connection: close"
-                 )
-
-         # Otherwise, we've been asked to do a bounded read. We should read no
-         # more than the remaining length, obviously.
-         # FIXME: Handle cases without _length
-         if self._length is not None:
-             amt = min(amt, self._length)
+            # Otherwise, we've been asked to do a bounded read. We should read no
+            # more than the remaining length, obviously.
+            # FIXME: Handle cases without _length
+            if self._length is not None:
+                amt = min(amt, self._length)
  
-         # Now, issue reads until we read that length. This is to account for
-         # the fact that it's possible that we'll be asked to read more than
-         # 65kB in one shot.
-         to_read = amt
-         chunks = []
+            # Now, issue reads until we read that length. This is to account for
+            # the fact that it's possible that we'll be asked to read more than
+            # 65kB in one shot.
+            to_read = amt
+            chunks = []
  
-         # Ideally I'd like this to read 'while to_read', but I want to be
-         # defensive against the admittedly unlikely case that the socket
-         # returns *more* data than I want.
-         while to_read > 0:
-             chunk = self._sock.recv(amt).tobytes()
+            # Ideally I'd like this to read 'while to_read', but I want to be
+            # defensive against the admittedly unlikely case that the socket
+            # returns *more* data than I want.
+            while to_read > 0:
+                chunk = self._sock.recv(amt).tobytes()
  
-             # If we got an empty read, but were expecting more, the remote end
-             # has hung up. Raise an exception if we were expecting more data,
-             # but if we were expecting the remote end to close then it's ok.
-             if not chunk:
-                 if self._length is not None or not self._expect_close:
-                     self.close(socket_close=True)
-                     raise ConnectionResetError("Remote end hung up!")
+                # If we got an empty read, but were expecting more, the remote end
+                # has hung up. Raise an exception if we were expecting more data,
+                # but if we were expecting the remote end to close then it's ok.
+                if not chunk:
+                    if self._length is not None or not self._expect_close:
+                        self.close(socket_close=True)
+                        raise ConnectionResetError("Remote end hung up!")
  
-                 break
+                    break
  
-             to_read -= len(chunk)
-             chunks.append(chunk)
+                to_read -= len(chunk)
+                chunks.append(chunk)
  
-         data = b''.join(chunks)
-         if self._length is not None:
-             self._length -= len(data)
+            data = b''.join(chunks)
+            if self._length is not None:
+                self._length -= len(data)
  
-         # If we're at the end of the request, we have some cleaning up to do.
-         # Close the stream, and if necessary flush the buffer. Checking that
-         # we're at the end is actually obscenely complex: either we've read the
-         # full content-length or, if we were expecting a closed connection,
-         # we've had a read shorter than the requested amount. We also have to
-         # do this before we try to decompress the body.
-         end_of_request = (self._length == 0 or
-                           (self._expect_close and len(data) < amt))
+            # If we're at the end of the request, we have some cleaning up to do.
+            # Close the stream, and if necessary flush the buffer. Checking that
+            # we're at the end is actually obscenely complex: either we've read the
+            # full content-length or, if we were expecting a closed connection,
+            # we've had a read shorter than the requested amount. We also have to
+            # do this before we try to decompress the body.
+            end_of_request = (self._length == 0 or
+                              (self._expect_close and len(data) < amt))
  
-         # We may need to decode the body.
-         if decode_content and self._decompressobj and data:
-             data = self._decompressobj.decompress(data)
+            # We may need to decode the body.
+            if decode_content and self._decompressobj and data:
+                data = self._decompressobj.decompress(data)
+                
+            if decode_content and self._decompressobj and end_of_request:
+                data += self._decompressobj.flush()
  
-         if decode_content and self._decompressobj and end_of_request:
-             data += self._decompressobj.flush()
- 
-         # We're at the end. Close the connection. Explicit check for zero here
-         # because self._length might be None.
-         if end_of_request:
-             self.close(socket_close=self._expect_close)
-             yield data
+            # We're at the end. Close the connection. Explicit check for zero here
+            # because self._length might be None.
+            if end_of_request:
+                self.close(socket_close=self._expect_close)
+                yield data
+                yield -1
          
-         yield data
+            yield data
  
-         return data
+        return
 
     
     def read_chunked(self, decode_content=True):
