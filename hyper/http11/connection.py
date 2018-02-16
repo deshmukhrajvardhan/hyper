@@ -189,6 +189,9 @@ class HTTP11Connection(object):
                 sock = socket.create_connection((self.host, self.port),
                                                 timeout=connect_timeout)
             proto = None
+            
+            with open('/mnt/QUIClientServer0/hyper_t_out','a') as t_out:
+                t_out.write("connect_timeout:{},read_timeout:{},_timeout:{}".format(connect_timeout,read_timeout,self._timeout))
 
             if self.secure:
                 sock, proto = wrap_socket(sock, self.host, self.ssl_context)
