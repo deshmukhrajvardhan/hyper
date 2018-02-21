@@ -287,7 +287,12 @@ class HTTP11Connection(object):
         response = None
         while response is None:
             # 'encourage' the socket to receive data.
-            #self._sock.fill()
+            # self._sock.fill()
+            '''patch to solve the edge case where the data is written into the same buffer as remaining_cap!=0 
+            (but low, approx.71 by observation), but the data to be written into the memory buffer from the 
+            socket is higher than what can fit in the memory buffer, which causes only partial data to be written 
+            and the other data is lost'''
+            # we allocate new_buffer everytime we want to get new response header and corresponding data
             self._sock.new_buffer()
 
             count = self._sock._sck.recv_into(self._sock._buffer_view[self._sock._buffer_end:]) #using sockets recv_into
@@ -297,6 +302,7 @@ class HTTP11Connection(object):
                 raise ConnectionResetError()
 
             self._sock._bytes_in_buffer += count
+            # \end of patch
 
             response = self.parser.parse_response(self._sock.buffer)
             #print("buff_len:",len(self._sock.buffer),"buf:",self._sock.buffer.tobytes(),"Response:",response)
