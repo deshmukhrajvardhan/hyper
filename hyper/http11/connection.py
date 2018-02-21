@@ -287,9 +287,19 @@ class HTTP11Connection(object):
         response = None
         while response is None:
             # 'encourage' the socket to receive data.
-            self._sock.fill()
+            #self._sock.fill()
+            self._sock.new_buffer()
+
+            count = self._sock._sck.recv_into(self._sock._buffer_view[self._sock._buffer_end:]) #using sockets recv_into
+            #https://docs.python.org/2/library/socket.html
+            if not count:
+                print("In Fill, count:",count)
+                raise ConnectionResetError()
+
+            self._sock._bytes_in_buffer += count
+
             response = self.parser.parse_response(self._sock.buffer)
-            print("buff_len:",len(self._sock.buffer),"buf:",self._sock.buffer.tobytes(),"Response:",response)
+            #print("buff_len:",len(self._sock.buffer),"buf:",self._sock.buffer.tobytes(),"Response:",response)
 
         for n, v in response.headers:
             headers[n.tobytes()] = v.tobytes()
