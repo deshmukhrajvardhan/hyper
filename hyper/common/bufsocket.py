@@ -151,7 +151,7 @@ class BufferedSocket(object):
         amt = min(amt, self._bytes_in_buffer)
         data = self._buffer_view[self._index:self._index+amt]
 
-        self._index += amt
+        self._index += amt # start read from
         self._bytes_in_buffer -= amt
 
         return data
@@ -161,9 +161,10 @@ class BufferedSocket(object):
         Attempts to fill the buffer as much as possible. It will block for at
         most the time required to have *one* ``recv_into`` call return.
         """
-        if not self._remaining_capacity:
+        #buffer_size-index=sizeof(|<stuff_to_be_read>|<space>|) ([|<used stuff>|<stuff_to_be_read>|<space>|])
+        if not self._remaining_capacity: 
             self.new_buffer()
-
+        #start write form _buffer_end
         count = self._sck.recv_into(self._buffer_view[self._buffer_end:]) #using sockets recv_into
         #https://docs.python.org/2/library/socket.html
         if not count:
