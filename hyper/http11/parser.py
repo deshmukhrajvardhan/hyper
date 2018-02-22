@@ -44,7 +44,7 @@ class Parser(object):
         # because as much as possible we want to use the built-in bytestring
         # methods, rather than looping over the data in Python.
         temp_buffer = buffer.tobytes()
-        print("In parser.py, temp_buffer:",temp_buffer,"index:",index)
+        #print("In parser.py, temp_buffer:",temp_buffer,"index:",index)
         index = temp_buffer.find(b'\n')
         
         if index == -1:
@@ -65,24 +65,24 @@ class Parser(object):
         # Now, parse the headers out.
         end_index = index
         headers = []
-        print("parser.py end index before while:",end_index)
+        #print("parser.py end index before while:",end_index)
 
         while True:
             end_index = temp_buffer.find(b'\n', index)
-            print("parser.py while temp_buffer:search over same buffer,updated end_index:",end_index)
+            #print("parser.py while temp_buffer:search over same buffer,updated end_index:",end_index)
             if end_index == -1:
                 print("BAD RESPONSE parser.py while temp_buffer:",temp_buffer,"end_index:",end_index)
                 return None
             elif (end_index - index) <= 1:
                 # Chomp the newline
-                 print("Good Resp, end_index:",end_index,"index:",index)
+                 #print("Good Resp, end_index:",end_index,"index:",index)
                 end_index += 1
                 break
 
             name, value = temp_buffer[index:end_index].split(b':', 1)
             value = value.strip()
             headers.append((memoryview(name), memoryview(value)))
-            print("headers:{}, name:{} and value:{}".format(headers,name,value))
+            #print("headers:{}, name:{} and value:{}".format(headers,name,value))
             index = end_index + 1
 
         resp = Response(status, reason, minor_version, headers, end_index)
