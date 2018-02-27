@@ -189,44 +189,6 @@ class HTTP20Response(object):
 	self.close()
 	
         return
-## My Changes                                                                                       
-
-    def read_chunked_give_size(self, amt=None, decode_content=True):
-        """                                                                                         
-        Reads chunked transfer encoded bodies. This method returns a generator:                     
-        each iteration of which yields one chunk *unless* the frames                           
-        contain compressed data and ``decode_content`` is ``True``, in which                        
-        case it yields whatever the decompressor provides for each chunk.                           
-                                                                                                    
-        .. warning:: This may yield the empty string, without that being the                        
-                     end of the body!                                                               
-        """
-        #chunk_start_time = timeit.default_timer()
-
-        while True:
-            data = self._stream._read(amt)
-
-            #time_after_read = timeit.default_timer() - chunk_start_time                            
-            if data is None:
-                break
-
-            if decode_content and self._decompressobj:
-                data = self._decompressobj.decompress(data)
-
-            #time_after_decode = timeit.default_timer() - chunk_start_time                          
-            yield data
-
-        #time_after_decode = timeit.default_timer() - chunk_start_time
-
-        if decode_content and self._decompressobj:
-            yield self._decompressobj.flush()
-
-	yield stream_end
-        self.close()
-	
-        return
-
-## \My Changes                                                                                      
 
     def fileno(self):
         """
