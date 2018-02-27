@@ -185,7 +185,6 @@ class HTTP20Response(object):
         if decode_content and self._decompressobj:
             yield self._decompressobj.flush()
 
-        yield stream_end
 	self.close()
 	
         return
